@@ -4,6 +4,7 @@
 
     public partial class FirstPersonController : MonoBehaviour
     {
+
         [Range(0, 100)] public float mouseSensitivity = 25f;
         [Range(0f, 200f)] private float snappiness = 100f;
         [Range(0f, 20f)] public float walkSpeed = 10f;
@@ -55,17 +56,20 @@
         private float bobTimer;
         private float defaultPosY;
         private Vector3 recoil = Vector3.zero;
-        private bool isLook = true, isMove = true;
-        private float currentCameraHeight;
-        private float currentBobOffset;
-        private float currentFov;
-        private float fovVelocity;
-        private float currentSlideSpeed;
-        private float slideSpeedVelocity;
-        private float currentTiltAngle;
-        private float tiltVelocity;
+    private bool isLook = true, isMove = true;
+    public bool CanMove { get; set; } = true; // ап
+    private float currentCameraHeight;
+    private float currentBobOffset;
+    private float currentFov;
+    private float fovVelocity;
+    private float currentSlideSpeed;
+    private float slideSpeedVelocity;
+    private float currentTiltAngle;
+    private float tiltVelocity;
 
-        public float CurrentCameraHeight => isCrouching || isSliding ? crouchCameraHeight : originalCameraParentHeight;
+
+
+    public float CurrentCameraHeight => isCrouching || isSliding ? crouchCameraHeight : originalCameraParentHeight;
 
         private void Awake()
         {
@@ -219,43 +223,50 @@
             cameraParent.localRotation = Quaternion.RotateTowards(cameraParent.localRotation, Quaternion.Euler(recoil), recoilReturnSpeed * Time.deltaTime);
         }
 
-        private void HandleMovement()
+    private void HandleMovement()
+    {
+        if (!CanMove) // Если движение запрещено, выходим из метода
         {
-            moveInput.x = Input.GetAxis("Horizontal");
-            moveInput.y = Input.GetAxis("Vertical");
-            isSprinting = canSprint && Input.GetKey(KeyCode.LeftShift) && moveInput.y > 0.1f && isGrounded && !isCrouching && !isSliding;
-
-            float currentSpeed = isCrouching ? crouchSpeed : (isSprinting ? sprintSpeed : walkSpeed);
-            if (!isMove) currentSpeed = 0f;
-
-            Vector3 direction = new Vector3(moveInput.x, 0f, moveInput.y);
-            Vector3 moveVector = transform.TransformDirection(direction) * currentSpeed;
-            moveVector = Vector3.ClampMagnitude(moveVector, currentSpeed);
-
-            if (isGrounded || coyoteTimer > 0f)
-            {
-                if (canJump && Input.GetKeyDown(KeyCode.Space) && !isSliding)
-                {
-                    moveDirection.y = jumpSpeed;
-                }
-                else if (moveDirection.y < 0)
-                {
-                    moveDirection.y = -2f;
-                }
-            }
-            else
-            {
-                moveDirection.y -= gravity * Time.deltaTime;
-            }
-
-            if (!isSliding)
-            {
-                moveDirection = new Vector3(moveVector.x, moveDirection.y, moveVector.z);
-                characterController.Move(moveDirection * Time.deltaTime);
-            }
+            moveInput = Vector2.zero;
+            isSprinting = false;
+            return;
         }
 
-        public void SetControl(bool newState)
+        moveInput.x = Input.GetAxis("Horizontal");
+        moveInput.y = Input.GetAxis("Vertical");
+        isSprinting = canSprint && Input.GetKey(KeyCode.LeftShift) && moveInput.y > 0.1f && isGrounded && !isCrouching && !isSliding;
+
+        float currentSpeed = isCrouching ? crouchSpeed : (isSprinting ? sprintSpeed : walkSpeed);
+        if (!isMove) currentSpeed = 0f;
+
+        Vector3 direction = new Vector3(moveInput.x, 0f, moveInput.y);
+        Vector3 moveVector = transform.TransformDirection(direction) * currentSpeed;
+        moveVector = Vector3.ClampMagnitude(moveVector, currentSpeed);
+
+        if (isGrounded || coyoteTimer > 0f)
+        {
+            if (canJump && Input.GetKeyDown(KeyCode.Space) && !isSliding)
+            {
+                moveDirection.y = jumpSpeed;
+            }
+            else if (moveDirection.y < 0)
+            {
+                moveDirection.y = -2f;
+            }
+        }
+        else
+        {
+            moveDirection.y -= gravity * Time.deltaTime;
+        }
+
+        if (!isSliding)
+        {
+            moveDirection = new Vector3(moveVector.x, moveDirection.y, moveVector.z);
+            characterController.Move(moveDirection * Time.deltaTime);
+        }
+    }
+
+    public void SetControl(bool newState)
         {
             SetLookControl(newState);
             SetMoveControl(newState);
