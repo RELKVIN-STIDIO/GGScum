@@ -1,25 +1,25 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class Chear : MonoBehaviour
+public class Chair : MonoBehaviour
 {
     public bool IsSitting;
     public Transform SitPos;
-    FirstPersonMovement Fpm;
+    private FirstPersonMovement Fpm;
+
     private void OnTriggerEnter(Collider other)
     {
-
-        if (other.tag == "Player" && !IsSitting)
+        if (other.CompareTag("Player") && !IsSitting)
         {
             IsSitting = true;
             other.transform.position = SitPos.position;
-            FirstPersonMovement Fpm = other.GetComponent<FirstPersonMovement>();
-            Fpm.enabled = false;
-            Fpm.rigidbody.isKinematic = true;
+            Fpm = other.GetComponent<FirstPersonMovement>();
 
+            if (Fpm != null)
+            {
+                Fpm.enabled = false;
+                Fpm.rigidbody.isKinematic = true;
+            }
         }
-
     }
 
     private void Update()
@@ -27,8 +27,17 @@ public class Chear : MonoBehaviour
         if (Input.GetKey(KeyCode.Space) && IsSitting)
         {
             IsSitting = false;
-            Fpm.enabled = true;
-            Fpm.rigidbody.isKinematic = false;
+
+            if (Fpm != null)
+            {
+                Fpm.enabled = true;
+                Fpm.rigidbody.isKinematic = false;
+
+                // Calculate new position with offset
+                Vector3 newPosition = SitPos.position;
+                newPosition.z += 1f;
+                Fpm.transform.position = newPosition;
+            }
         }
     }
 }
