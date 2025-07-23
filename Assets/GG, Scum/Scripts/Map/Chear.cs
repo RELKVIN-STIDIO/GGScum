@@ -35,7 +35,7 @@ public class Chair : MonoBehaviour
 
                 // Calculate new position with offset
                 Vector3 newPosition = SitPos.position;
-                newPosition.z += 1f;
+                newPosition.z += 2f;
                 Fpm.transform.position = newPosition;
             }
         }
