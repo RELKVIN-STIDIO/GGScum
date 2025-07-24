@@ -2,11 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InteractionManager : MonoBehaviour
+public class PlayerInteraction : MonoBehaviour
 {
     public float interactionDistance = 3f;
-    public LayerMask interactableLayer;
-    public Transform playerCamera;
+    [SerializeField] private LayerMask interactableLayer;
 
     private IInteractable _currentIntaractable;
     private Outline _currentOutline;
@@ -23,7 +22,7 @@ public class InteractionManager : MonoBehaviour
 
     private void CheckForInteractable()
     {
-        Ray ray = new Ray(playerCamera.position, playerCamera.forward);
+        Ray ray = new Ray(playerController.playerCamera.position, playerController.playerCamera.forward);
         if (Physics.Raycast(ray, out RaycastHit hit, interactionDistance, interactableLayer))
         {
             IInteractable interactable = hit.collider.GetComponent<IInteractable>();

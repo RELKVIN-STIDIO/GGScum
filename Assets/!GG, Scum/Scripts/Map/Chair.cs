@@ -4,42 +4,35 @@ public class Chair : MonoBehaviour, IInteractable
 {
     [SerializeField] private bool isSitting;
     [SerializeField] private Transform sitPos;
-    [SerializeField] private FirstPersonController firstPersonController;
-    [SerializeField] private float seatedLookSensitivity = 2f;
-    [SerializeField] private float maxLookUpAngle = 30f; // Максимальный угол взгляда вверх
-    [SerializeField] private float maxLookDownAngle = -15f; // Максимальный угол взгляда вниз
-    [SerializeField] private float maxLookLeftAngle = 60f; // Максимальный угол поворота влево
-    [SerializeField] private float maxLookRightAngle = -60f; // Максимальный угол поворота вправо
+    PlayerController playerController = PlayerController.Instance;
+    [SerializeField] private float seatedLookSensitivity = 3f;
+    [SerializeField] private float maxLookUpAngle = 20f; // Максимальный угол взгляда вверх
+    [SerializeField] private float maxLookDownAngle = -10f; // Максимальный угол взгляда вниз
+    [SerializeField] private float maxLookLeftAngle = 260f; // Максимальный угол поворота влево
+    [SerializeField] private float maxLookRightAngle = -280f; // Максимальный угол поворота вправо
 
     private float originalMouseSensitivity;
-    private bool originalCursorVisibility;
 
     public void Interact()
     {
         if (!isSitting)
         {
-            // Начинаем сидение
             isSitting = true;
 
-            // Сохраняем оригинальные настройки
-            originalMouseSensitivity = firstPersonController.mouseSensitivity;
-            originalCursorVisibility = Cursor.visible;
+            originalMouseSensitivity = playerController.mouseSensitivity;
 
-            // Настраиваем параметры для сидения
-            firstPersonController.transform.position = sitPos.position;
-            firstPersonController.SetMoveControl(false);
-            firstPersonController.SetLookControl(true);
-            firstPersonController.mouseSensitivity = seatedLookSensitivity;
+            playerController.transform.position = sitPos.position;
+            playerController.SetMoveControl(false);
+            playerController.SetLookControl(true);
+            playerController.mouseSensitivity = seatedLookSensitivity;
 
-            // Устанавливаем ограничения вращения камеры
-            firstPersonController.SetCameraRotationLimits(
+            playerController.SetCameraRotationLimits(
                 maxLookRightAngle,
                 maxLookLeftAngle,
                 maxLookDownAngle,
                 maxLookUpAngle);
 
-            // Включаем курсор
-            firstPersonController.SetCursorVisibility(true);
+            playerController.SetCursorVisibility(true);
         }
     }
 
@@ -47,21 +40,18 @@ public class Chair : MonoBehaviour, IInteractable
     {
         if (Input.GetKey(KeyCode.Space) && isSitting)
         {
-            // Заканчиваем сидение
             isSitting = false;
 
-            // Восстанавливаем оригинальные настройки
-            firstPersonController.mouseSensitivity = originalMouseSensitivity;
-            firstPersonController.SetMoveControl(true);
-            firstPersonController.ResetCameraRotationLimits();
-            firstPersonController.SetCursorVisibility(originalCursorVisibility);
+            playerController.mouseSensitivity = originalMouseSensitivity;
+            playerController.SetMoveControl(true);
+            playerController.ResetCameraRotationLimits();
+            playerController.SetCursorVisibility(false);
 
-            // Перемещаем игрока за стул
-            if (firstPersonController != null)
+            if (playerController != null)
             {
                 Vector3 newPosition = sitPos.position;
                 newPosition.z += 2f;
-                firstPersonController.transform.position = newPosition;
+                playerController.transform.position = newPosition;
             }
         }
     }

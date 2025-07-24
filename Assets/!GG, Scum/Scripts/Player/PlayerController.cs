@@ -2,9 +2,8 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-public partial class FirstPersonController : MonoBehaviour
+public partial class PlayerController : MonoBehaviour
 {
-
     [Range(0, 100)] public float mouseSensitivity = 25f;
     [Range(0f, 200f)] private float snappiness = 100f;
     [Range(0f, 20f)] public float walkSpeed = 10f;
@@ -37,7 +36,7 @@ public partial class FirstPersonController : MonoBehaviour
     public Transform playerCamera;
     public Transform cameraParent;
     private float rotX, rotY;
-    private float xVelocity, yVelocity; 
+    private float xVelocity, yVelocity;
     private float minYRotation = -90f;
     private float maxYRotation = 90f;
     private float minXRotation = -360f;
@@ -70,12 +69,21 @@ public partial class FirstPersonController : MonoBehaviour
     private float currentTiltAngle;
     private float tiltVelocity;
 
-
-
     public float CurrentCameraHeight => isCrouching || isSliding ? crouchCameraHeight : originalCameraParentHeight;
 
     private void Awake()
     {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            _instance = this;
+            // Если вы хотите сохранить игрока между сценами, раскомментируйте следующую строку
+            // DontDestroyOnLoad(this.gameObject);
+        }
+
         characterController = GetComponent<CharacterController>();
         cam = playerCamera.GetComponent<Camera>();
         originalHeight = characterController.height;
